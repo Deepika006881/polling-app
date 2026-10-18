@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS polls (
+  id SERIAL PRIMARY KEY,
+  question TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS options (
+  id SERIAL PRIMARY KEY,
+  poll_id INT REFERENCES polls(id),
+  text TEXT NOT NULL,
+  votes INT DEFAULT 0
+);

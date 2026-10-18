@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Polling App</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 30px auto; }
+    .poll { border: 1px solid #ccc; padding: 12px; margin: 12px 0; border-radius: 8px; }
+    button { margin: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Polling App</h1>
+
+  <h3>Create a poll</h3>
+  <input id="q" placeholder="Question"><br>
+  <input id="o1" placeholder="Option 1"><br>
+  <input id="o2" placeholder="Option 2"><br>
+  <input id="o3" placeholder="Option 3 (optional)"><br>
+  <button onclick="createPoll()">Create</button>
+
+  <h3>Polls</h3>
+  <div id="polls"></div>
+
+<script>
+async function load() {
+  const res = await fetch("/api/polls");
+  const polls = await res.json();
+  document.getElementById("polls").innerHTML = polls.map(p => `
+    <div class="poll"><b>${p.question}</b><br>
+      ${p.options.map(o => `<button onclick="vote(${o.id})">${o.text}</button> (${o.votes} votes)`).join("<br>")}
+    </div>`).join("");
+}
+async function createPoll() {
+  const options = ["o1","o2","o3"].map(i => document.getElementById(i).value).filter(v => v);
+  await fetch("/api/polls", {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({question: document.getElementById("q").value, options})});
+  load();
+}
+async function vote(id) { await fetch("/api/vote/" + id, {method:"POST"}); load(); }
+load();
+</script>
+</body>
+</html>
